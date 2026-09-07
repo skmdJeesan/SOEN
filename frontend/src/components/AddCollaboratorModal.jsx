@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useState } from 'react'
-import axios from '../config/axios.JS'
+import axios from '../config/axios.js'
 import { X, Check, Search, User } from 'lucide-react'
 
 const Modal = ({modalOpen, setModalOpen, projectData, setProjectData}) => {
