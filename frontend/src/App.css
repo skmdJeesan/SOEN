@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+.project-shell {
+	height: 100dvh;
+}
+
+.scrollbar-hide {
+	/* Firefox */
+	scrollbar-width: none;
+	/* Internet Explorer and legacy Edge */
+	-ms-overflow-style: none;
+}
+
+/* Chrome, Safari, Opera, and other WebKit-based browsers */
+.scrollbar-hide::-webkit-scrollbar {
+	display: none;
+}
+
+.message-box {
+    scroll-behavior: smooth;
+}
