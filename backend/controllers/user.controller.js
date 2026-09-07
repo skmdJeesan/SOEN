@@ -32,7 +32,7 @@ export const user_otp_verify = async (req, res) => {
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV == 'production',
-            sameSite: 'strict',
+            sameSite: process.env.NODE_ENV == 'production' ? 'none' : 'strict',
             maxAge: 24 * 60 * 60 * 1000
         })
         res.status(200).json({ user, token })
@@ -68,7 +68,7 @@ export const user_login = async (req, res) => {
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV == 'production',
-            sameSite: 'strict',
+            sameSite: process.env.NODE_ENV == 'production' ? 'none' : 'strict',
             maxAge: 24 * 60 * 60 * 1000
         })
         res.status(200).json({ user, token })
@@ -86,7 +86,7 @@ export const user_logout = async (req, res) => {
         res.clearCookie('token', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict'
+            sameSite: process.env.NODE_ENV == 'production' ? 'none' : 'strict'
         })
         res.status(200).json({message: `user logout successfully`})
     } catch (error) {
