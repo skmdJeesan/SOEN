@@ -1,0 +1,2 @@
+SOEN
+It's a real-time collaborative code editor — like a mini VS Code + Google Docs hybrid — where multiple users can edit a shared project's files simultaneously, chat with each other, run the code in an in-browser Node environment, and even ask an AI assistant to generate code directly into the project.
