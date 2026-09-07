@@ -271,7 +271,7 @@ const RightSection = ({
   // "file open" and "no file open" render branches below
   const renderBottomPanel = () => (
     <div className="flex-1 border-t border-white/10 bg-zinc-900/60 flex flex-col min-h-0 scrollbar-hide">
-      <div className="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-1.5 sm:py-2 border-b border-white/10 text-sm">
+      <div className="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-1.5 sm:py-[9px] border-b border-white/10 text-[14px]">
         <button
           onClick={() => setBottomTab("terminal")}
           className={`${bottomTab === "terminal" ? "text-yellow-500" : "text-zinc-400"} hover:text-yellow-500 transition-colors`}
@@ -285,7 +285,6 @@ const RightSection = ({
           Preview
         </button>
       </div>
-
       <div className="flex-1 overflow-hidden">
         {bottomTab === "terminal" ? (
           <TerminalPanel
