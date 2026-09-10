@@ -29,34 +29,7 @@ This application combines a live multi-user code editor, an in-browser execution
 
 ## Architecture
 
-```
-                        +---------------------------+
-                        |     Client (React)         |
-                        |-----------------------------|
-                        |  Monaco Editor              |
-                        |  xterm.js Terminal           |
-                        |  WebContainer (run/preview)  |
-                        |  Socket.IO client             |
-                        +---------------+-------------+
-                                        |
-                          REST API  +  WebSocket events
-                                        |
-                        +---------------v-------------+
-                        |   Server (Node.js + Express)|
-                        |-------------------------------|
-                        |  REST API (auth, projects)     |
-                        |  Socket.IO server (broadcast)   |
-                        |  AI integration (Groq)           |
-                        +----+----------+---------------+
-                             |          |
-                +------------v+   +-----v------+   +-------------+
-                |   MongoDB    |   |   Redis    |   |   Resend    |
-                | users,       |   | session /  |   | verification|
-                | projects,    |   | logout     |   | emails      |
-                | file trees,  |   | state      |   |             |
-                | chat history |   |            |   |             |
-                +--------------+   +------------+   +-------------+
-```
+![System Architecture Diagram](./frontend/public/soen_architecture.png)
 
 Real-time state flows through Socket.IO in both directions: the server broadcasts file tree and code-change events to all clients in a project room, and each client applies incoming changes to its local WebContainer and editor instance. The database remains the source of truth for a project's file tree and chat history, so newly joining collaborators are brought up to date on connection.
 
