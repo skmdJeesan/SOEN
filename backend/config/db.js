@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const connect_db = async () => {
-    if(mongoose.connection.readyState >= 1) return;
+    if(mongoose.connection.readyState >= 1) return; // Check if already connected or connecting
     try {
         await mongoose.connect(process.env.MONGO_URI)
         console.log('connected to mongo db')
