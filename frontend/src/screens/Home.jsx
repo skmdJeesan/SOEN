@@ -152,6 +152,7 @@ const Home = () => {
           </div>
         )}
       </div>
+      
       <footer id="footer" className="bg-zinc-900/60">
         <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 px-4 py-3 text-xs sm:text-sm">
           <span className="text-zinc-500">

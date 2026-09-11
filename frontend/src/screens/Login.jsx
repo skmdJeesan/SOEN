@@ -23,6 +23,7 @@ export default function Login() {
     const next = {};
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) next.email = "Enter a valid email address.";
     if (form.password.length === 0) next.password = "Enter your password.";
+    else if (form.password.length < 6) next.password = "Password must be at least 6 characters.";
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -42,7 +43,13 @@ export default function Login() {
         if (err.response?.status === 403 && err.response?.data?.userId) {
           navigate('/verify-otp', { state: { userId: err.response.data.userId } })
         } else {
-          setErrors(err.response?.data?.message || 'Login failed')
+          const responseErrors = err.response?.data?.errors;
+          const validationMessage = Array.isArray(responseErrors)
+            ? responseErrors[0]?.msg
+            : responseErrors;
+          setErrors({
+            form: err.response?.data?.message || validationMessage || 'Login failed',
+          });
         }
     } finally {
       setSubmitting(false);
@@ -51,28 +58,18 @@ export default function Login() {
 
   return (
     <div className="min-h-screen w-full bg-[#05070C] text-[#E7E9EE] flex items-center justify-center p-6 font-sans relative overflow-hidden">
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
-        .font-display { font-family: 'Space Grotesk', sans-serif; }
-        .font-sans { font-family: 'Inter', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-        .bg-grid {
-          background-image:
-            linear-gradient(rgba(232,179,74,0.06) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(232,179,74,0.06) 1px, transparent 1px);
-          background-size: 36px 36px;
-        }
-      `}</style>
 
       {/* Grid backdrop + ambient glow */}
       <div className="absolute inset-0 bg-grid" />
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-lg h-128 rounded-full bg-[#E8B34A]/10 blur-3xl" />
+      
+      <div className="logo flex items-center gap-1 absolute top-4 left-4 sm:top-8 sm:left-16">
+        <img src="/cursor-ai-yellow.png" alt="Logo" className="w-7 h-7" />
+        <h1 className="text-xl font-bold" font-display>SOEN</h1>
+      </div>
 
-      <div className="relative z-10 w-full max-w-sm">
-        <div className="rounded-2xl border border-[#1F2230] bg-[#0D1017]/80 backdrop-blur-sm p-8 shadow-2xl shadow-black/40">
-          <p className="font-mono text-xs tracking-widest text-[#E8B34A] uppercase mb-3">
-            Welcome back
-          </p>
+      <div className="relative z-10 w-full max-w-95">
+        <div className="rounded-4xl border border-[#1F2230] bg-zinc-900/20 backdrop-blur-xl p-8 shadow-2xl shadow-black/40">
           <h2 className="font-display text-3xl font-semibold tracking-tight mb-2">
             Log in
           </h2>
@@ -86,7 +83,7 @@ export default function Login() {
           <form onSubmit={handleSubmit} noValidate className="space-y-5">
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-xs font-medium text-[#8B93A7] mb-1.5">
+              <label htmlFor="email" className="block text-sm font-medium text-[#8B93A7] mb-1.5 ml-1">
                 Email
               </label>
               <input
@@ -106,7 +103,7 @@ export default function Login() {
             {/* Password */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label htmlFor="password" className="block text-xs font-medium text-[#8B93A7]">
+                <label htmlFor="password" className="block text-sm ml-1 font-medium text-[#8B93A7]">
                   Password
                 </label>
                 <Link to="/forgot-password" className="text-xs text-[#5B6376] hover:text-[#8B93A7] transition-colors">
@@ -156,7 +153,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full rounded-lg bg-[#E8B34A] text-[#05070C] font-medium text-sm py-2.5 mt-2 transition-all hover:bg-[#F3C877] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="cursor-pointer w-full rounded-lg bg-[#E8B34A] text-[#05070C] font-medium text-sm py-2.5 mt-2 transition-all hover:bg-[#F3C877] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {submitting ? (
                 <>
@@ -172,11 +169,11 @@ export default function Login() {
             </button>
           </form>
         </div>
-
         <p className="mt-6 text-center text-xs text-[#4A5165] leading-relaxed">
           By continuing, you agree to the Terms of Service and Privacy Policy.
         </p>
       </div>
+
     </div>
   );
 }

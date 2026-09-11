@@ -1,21 +1,38 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
 @import "tailwindcss";
 
 .project-shell {
-	height: 100dvh;
+  height: 100dvh;
 }
 
 .scrollbar-hide {
-	/* Firefox */
-	scrollbar-width: none;
-	/* Internet Explorer and legacy Edge */
-	-ms-overflow-style: none;
+  /* Firefox */
+  scrollbar-width: none;
+  /* Internet Explorer and legacy Edge */
+  -ms-overflow-style: none;
 }
 
 /* Chrome, Safari, Opera, and other WebKit-based browsers */
 .scrollbar-hide::-webkit-scrollbar {
-	display: none;
+  display: none;
 }
 
 .message-box {
-    scroll-behavior: smooth;
+  scroll-behavior: smooth;
+}
+
+.font-display {
+  font-family: "Space Grotesk", sans-serif;
+}
+.font-sans {
+  font-family: "Inter", sans-serif;
+}
+.font-mono {
+  font-family: "JetBrains Mono", monospace;
+}
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(232, 179, 74, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232, 179, 74, 0.06) 1px, transparent 1px);
+  background-size: 70px 70px;
 }

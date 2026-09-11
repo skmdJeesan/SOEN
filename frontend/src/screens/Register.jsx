@@ -62,28 +62,18 @@ export default function Register() {
 
   return (
     <div className="min-h-screen w-full bg-[#05070C] text-[#E7E9EE] flex items-center justify-center p-6 font-sans relative overflow-hidden">
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
-        .font-display { font-family: 'Space Grotesk', sans-serif; }
-        .font-sans { font-family: 'Inter', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-        .bg-grid {
-          background-image:
-            linear-gradient(rgba(232,179,74,0.06) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(232,179,74,0.06) 1px, transparent 1px);
-          background-size: 36px 36px;
-        }
-      `}</style>
 
       {/* Grid backdrop + ambient glow */}
       <div className="absolute inset-0 bg-grid" />
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-lg h-128 rounded-full bg-[#E8B34A]/10 blur-3xl" />
 
-      <div className="relative z-10 w-full max-w-sm">
-        <div className="rounded-2xl border border-[#1F2230] bg-[#0D1017]/80 backdrop-blur-sm p-8 shadow-2xl shadow-black/40">
-          <p className="font-mono text-xs tracking-widest text-[#E8B34A] uppercase mb-3">
-            New account
-          </p>
+      <div className="logo flex items-center gap-1 absolute top-4 left-4 sm:top-8 sm:left-16">
+        <img src="/cursor-ai-yellow.png" alt="Logo" className="w-7 h-7" />
+        <h1 className="text-xl font-bold" font-display>SOEN</h1>
+      </div>
+
+      <div className="relative z-10 w-full max-w-md">
+        <div className="rounded-4xl border border-[#1F2230] bg-zinc-900/20 backdrop-blur-xl p-8 shadow-2xl shadow-black/40">
           <h2 className="font-display text-3xl font-semibold tracking-tight mb-2">
             Create your account
           </h2>
@@ -97,7 +87,7 @@ export default function Register() {
           <form onSubmit={handleSubmit} noValidate className="space-y-5">
             {/* Username */}
             <div>
-              <label htmlFor="username" className="block text-xs font-medium text-[#8B93A7] mb-1.5">
+              <label htmlFor="username" className="block text-xs font-medium text-[#8B93A7] mb-1.5 ml-1">
                 Username
               </label>
               <input
@@ -116,7 +106,7 @@ export default function Register() {
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-xs font-medium text-[#8B93A7] mb-1.5">
+              <label htmlFor="email" className="block text-xs font-medium text-[#8B93A7] mb-1.5 ml-1">
                 Email
               </label>
               <input
@@ -135,7 +125,7 @@ export default function Register() {
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-xs font-medium text-[#8B93A7] mb-1.5">
+              <label htmlFor="password" className="block text-xs font-medium text-[#8B93A7] mb-1.5 ml-1">
                 Password
               </label>
               <div className="relative">
@@ -198,7 +188,7 @@ export default function Register() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full rounded-lg bg-[#E8B34A] text-[#05070C] font-medium text-sm py-2.5 mt-2 transition-all hover:bg-[#F3C877] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="cursor-pointer w-full rounded-lg bg-[#E8B34A] text-[#05070C] font-medium text-sm py-2.5 mt-2 transition-all hover:bg-[#F3C877] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {submitting ? (
                 <>

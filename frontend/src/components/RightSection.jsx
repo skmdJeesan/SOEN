@@ -10,7 +10,7 @@ import { buildTree } from "../utils/buildTree.js";
 import { writeEntryToContainer } from "../utils/writeToContainer.js";
 import { collectDescendantPaths } from "../utils/collectDescendantPaths.js";
 
-const LANGUAGE_MAP = {
+const lang_map = {
   js: "javascript",
   jsx: "javascript",
   ts: "typescript",
@@ -23,7 +23,7 @@ const LANGUAGE_MAP = {
 
 const getLanguage = (filename) => {
   const ext = filename.split(".").pop();
-  return LANGUAGE_MAP[ext] || "plaintext";
+  return lang_map[ext] || "plaintext";
 };
 
 const RightSection = ({
@@ -67,8 +67,8 @@ const RightSection = ({
   }, [fileTree]);
 
   const saveTimeoutRef = useRef(null);
-
   const containerWriteQueueRef = useRef(Promise.resolve());
+
   const updateFileContents = (filename, contents) => {
     setFileTree((currentFileTree) => {
       if (currentFileTree[filename]?.type !== "file") return currentFileTree;
@@ -92,7 +92,7 @@ const RightSection = ({
     });
   };
 
-  const applyChanges = (contents, changes) =>
+  const applyChanges = (contents, changes) => {
     [...changes]
       .sort((left, right) => right.rangeOffset - left.rangeOffset)
       .reduce(
@@ -102,6 +102,7 @@ const RightSection = ({
           currentContents.slice(change.rangeOffset + change.rangeLength),
         contents,
       );
+  }
 
   useEffect(() => {
     if (!remoteCodeChange || remoteCodeChange.filename !== activeFile) {
@@ -271,7 +272,7 @@ const RightSection = ({
   // "file open" and "no file open" render branches below
   const renderBottomPanel = () => (
     <div className="flex-1 border-t border-white/10 bg-zinc-900/60 flex flex-col min-h-0 scrollbar-hide">
-      <div className="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-1.5 sm:py-[9px] border-b border-white/10 text-[14px]">
+      <div className="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-1.5 sm:py-2.25 border-b border-white/10 text-[14px]">
         <button
           onClick={() => setBottomTab("terminal")}
           className={`${bottomTab === "terminal" ? "text-yellow-500" : "text-zinc-400"} hover:text-yellow-500 transition-colors`}

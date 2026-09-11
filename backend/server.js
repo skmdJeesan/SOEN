@@ -164,7 +164,7 @@ io.on('connection', socket => {
             const prompt = message.replace('@soen', '')
             const response = await generate_response(prompt)
             const parsedResponse = JSON.parse(response)
-            console.log('AI response:', parsedResponse)
+            // console.log('AI response:', parsedResponse)
 
             // convert fileTree from array shape → object shape the frontend expects
             if (parsedResponse.fileTree) {

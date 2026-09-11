@@ -106,9 +106,9 @@ const Project = () => {
         const parsed = JSON.parse(data.message);
         if (parsed.fileTree) {
           if (parsed.fileTree) {
-            setFileTree((prev) => {
+            setFileTree((prev) => { // append new fileTree to existing one, if any
               const merged = { ...prev, ...parsed.fileTree };
-              saveFileTree(merged);
+              saveFileTree(merged); // update the database with the new merged fileTree
               return merged;
             });
           }
@@ -124,6 +124,7 @@ const Project = () => {
     sendMessage("project-message", { message, sender: userdata });
   };
 
+  // Initialize the project and web container
   useEffect(() => {
     getProjectMessages();
     if (!webContainer) {
@@ -206,15 +207,18 @@ const Project = () => {
     codeEditorInitializedRef.current = true;
   }, [fileTree]);
 
+  // Sync the web container with the fileTree whenever it changes and 
+  // This ensures that the container always reflects the latest fileTree state.
   useEffect(() => {
     const webContainerMount = async () => {
       if (!webContainer || !projectLoaded || !fileTree) return;
       const paths = Object.keys(fileTree).sort();
+      // Check if the paths have changed since the last mount
       const pathsChanged =
         paths.length !== mountedPathsRef.current.length ||
         paths.some((path, index) => path !== mountedPathsRef.current[index]);
 
-      if (mountedOnceRef.current && !pathsChanged) return;
+      if (mountedOnceRef.current && !pathsChanged) return; // no changes to mount, skip
 
       try {
         // if the container has already been mounted once,
@@ -225,19 +229,19 @@ const Project = () => {
             ...new Set(
               mountedPathsRef.current.map((path) => path.split("/")[0]),
             ),
-          ];
+          ]; // ["src", "public", "package.json"]
           const nextTopLevelPaths = new Set(
             paths.map((path) => path.split("/")[0]),
-          );
+          ); // let's say the new fileTree has ["src", "public", "README.md"]
           await Promise.all(
             currentTopLevelPaths
-              .filter((path) => !nextTopLevelPaths.has(path))
+              .filter((path) => !nextTopLevelPaths.has(path)) // ["package.json"]
               .map((path) =>
-                webContainer.fs.rm(path, { recursive: true, force: true }),
+                webContainer.fs.rm(path, { recursive: true, force: true }), // removes package.json
               ),
           );
         }
-        await webContainer.mount(buildWebContainerTree(fileTree));
+        await webContainer.mount(buildWebContainerTree(fileTree)); // mount the new fileTree into the container
         mountedPathsRef.current = paths;
         mountedOnceRef.current = true;
         setContainerReady(true);
