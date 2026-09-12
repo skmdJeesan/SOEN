@@ -10,7 +10,7 @@ const Home = () => {
 
   const { userdata, setUserdata } = useContext(UserContext);
   const { projects, setProjects } = useContext(ProjectContext); // all projects where the user is a collaborator
-  
+
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false); // project creation modal
   const [isEditModalOpen, setIsEditModalOpen] = useState(false); // project edit modal
@@ -40,8 +40,9 @@ const Home = () => {
         name: projectName,
         description: projectDescription,
       });
+      window.location.reload()
       setIsCreateModalOpen(false);
-      console.log(data);
+      // console.log(data);
     } catch (error) {
       console.log(error);
       setIsCreateModalOpen(false);
@@ -57,9 +58,9 @@ const Home = () => {
         name: projectName,
         description: projectDescription,
       });
-      setIsEditModalOpen(false);
       window.location.reload(); // Refresh the page to reflect the updated project details
-      console.log(data);
+      setIsEditModalOpen(false);
+      // console.log(data);
     } catch (error) {
       console.log(error);
       setIsEditModalOpen(false);
@@ -70,7 +71,7 @@ const Home = () => {
     try {
       const { data } = await axios.delete(`/projects/${projectId}`);
       window.location.reload(); // Refresh the page to reflect the deleted project
-      console.log(data);
+      // console.log(data);
     } catch (error) {
       console.log(error);
     }
@@ -125,21 +126,21 @@ const Home = () => {
           </button>
 
           <div className="flex gap-4 flex-wrap mt-4 w-full h-full mb-10 sm:mb-0">
-            {projects.map((project) => (
+            {projects.length > 0 ? projects.map((project) => (
               <div
                 key={project._id}
                 className="overflow-auto scrollbar-hide project flex flex-col justify-between cursor-pointer p-3 sm:p-4 rounded-3xl w-full sm:w-70 max-h-45 bg-white/10 hover:scale-102 transition-all"
               >
-                
+
                 <div className="flex items-center justify-between mb-1 bg-zinc-50/10 p-2 rounded-xl">
                   <h2 className="font-semibold text-sm sm:text-base">
                     {project.name}
                   </h2>
                   <div className="flex items-center gap-1">
-                    <div onClick={() => { 
-                        setIsEditModalOpen(true); setProjectName(project.name); 
-                        setProjectDescription(project.description); setProjectId(project._id); 
-                      }}
+                    <div onClick={() => {
+                      setIsEditModalOpen(true); setProjectName(project.name);
+                      setProjectDescription(project.description); setProjectId(project._id);
+                    }}
                       className="h-6 w-6 rounded-full flex items-center justify-center bg-yellow-500/10 hover:bg-yellow-500/50 cursor-pointer">
                       <Edit2 size={12} />
                     </div>
@@ -176,7 +177,9 @@ const Home = () => {
                   {project.users.length}
                 </div>
               </div>
-            ))}
+            )) :
+              <p className="text-zinc-400 w-full text-left sm:text-center mt-0 sm:mt-[25vh]">You don't have any projects yet!</p> 
+            }
           </div>
         </div>
         {isCreateModalOpen && (
@@ -311,7 +314,7 @@ const Home = () => {
           </div>
         )}
       </div>
-      
+
       <footer id="footer" className="bg-zinc-900/60">
         <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 px-4 py-3 text-xs sm:text-sm">
           <span className="text-zinc-500">
