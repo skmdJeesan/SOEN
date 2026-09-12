@@ -36,19 +36,12 @@ Real-time state flows through Socket.IO in both directions: the server broadcast
 ## Tech Stack
 
 **Frontend:** React, Tailwind CSS, Monaco Editor, xterm.js, WebContainer API, Socket.IO client
-
 **Backend:** Node.js, Express.js, Socket.IO
-
 **Database:** MongoDB
-
 **Session/Cache:** Redis
-
 **AI Integration:** Groq API
-
 **Email:** Resend
-
 **Authentication:** JWT
-
 **Deployment:** Render
 
 ## License
