@@ -6,7 +6,7 @@ export const send_project_invite_email = async ({ to_email, owner_name, project_
   const project_link = `${process.env.FRONTEND_URL}`
 
   const { error } = await resend.emails.send({
-    from: 'noreply@skmdjeesan.me', // your verified Resend domain
+    from: 'SOEN <noreply@skmdjeesan.me>', // your verified Resend domain
     to: to_email,
     subject: `You've been added to ${project_name}`,
     html: `
