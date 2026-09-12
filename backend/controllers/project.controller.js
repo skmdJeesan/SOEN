@@ -169,6 +169,18 @@ export const delete_project = async (req, res) => {
         if (!mongoose.Types.ObjectId.isValid(project_id)) {
             return res.status(400).json({ message: 'invalid project id!' })
         }
+        const current_user = await User.findOne({ email: req.user.email })
+        const project = await Project.findById(project_id)
+        if (!project) return res.status(404).json({ message: 'Project not found' })
+        if (!current_user) return res.status(401).json({ message: 'User not found' })
+
+        if (project.projectOwner.toString() !== current_user._id.toString()) {
+            await Project.findByIdAndUpdate(project_id, {
+                $pull: { users: current_user._id }
+            })
+            return res.status(200).json({ message: 'You left the project' })
+        }
+
         const deletedProject = await Project.findByIdAndDelete(project_id)
         if (!deletedProject) return res.status(404).json({ message: 'Project not found' })
         return res.status(200).json({ message: 'Project deleted successfully', project: deletedProject })

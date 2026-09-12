@@ -76,6 +76,9 @@ const Home = () => {
     }
   };
 
+  const selectedProject = projects.find((project) => project._id === projectId);
+  const selectedProjectIsOwned = String(selectedProject?.projectOwner?._id) === String(userdata?._id);
+
   return (
     <div className="px-4 sm:px-16 py-2 bg-grid min-h-screen text-white/90 flex flex-col justify-between">
       {/* grid background */}
@@ -140,7 +143,11 @@ const Home = () => {
                       className="h-6 w-6 rounded-full flex items-center justify-center bg-yellow-500/10 hover:bg-yellow-500/50 cursor-pointer">
                       <Edit2 size={12} />
                     </div>
-                    <div onClick={() => { setIsDeleteModalOpen(true); setProjectId(project._id); }} className="h-6 w-6 rounded-full flex items-center justify-center bg-red-500/10 hover:bg-red-500/50 cursor-pointer">
+                    <div
+                      onClick={() => { setIsDeleteModalOpen(true); setProjectId(project._id); }}
+                      title={String(project?.projectOwner?._id) === String(userdata?._id) ? "Delete project" : "Leave project"}
+                      className="h-6 w-6 rounded-full flex items-center justify-center bg-red-500/10 hover:bg-red-500/50 cursor-pointer"
+                    >
                       <Trash2 size={12} />
                     </div>
                     <div onClick={() => { navigate(`/project`, { state: { project } }); }}
@@ -274,10 +281,12 @@ const Home = () => {
           <div className="fixed inset-0 flex items-center justify-center bg-black/70">
             <div className="bg-zinc-900 p-6 rounded-3xl shadow-md w-[90%] sm:w-1/3">
               <h2 className="text-xl mb-4 text-red-400">
-                Confirm Delete Project
+                {selectedProjectIsOwned ? "Confirm Delete Project" : "Leave Project"}
               </h2>
               <p className="mb-4">
-                Are you sure you want to delete this project? This action cannot be undone.
+                {selectedProjectIsOwned
+                  ? "Are you sure you want to delete this project? This action cannot be undone."
+                  : "Are you sure you want to leave this project? You can be added again later."}
               </p>
               <div className="flex justify-end">
                 <button
@@ -295,7 +304,7 @@ const Home = () => {
                     setIsDeleteModalOpen(false);
                   }}
                 >
-                  Delete
+                  {selectedProjectIsOwned ? "Delete" : "Leave"}
                 </button>
               </div>
             </div>
