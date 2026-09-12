@@ -20,8 +20,8 @@ const Modal = ({modalOpen, setModalOpen, projectData, setProjectData}) => {
             setModalError('')
             try {
                 // Adjust this endpoint to match your backend, e.g. GET /users/all
-                const res = await axios.get('/users/all')
-                setAllUsers(res.data.users || [])
+                    const { data } = await axios.get('/users/all')
+                    setAllUsers(data.users || [])
             } catch (error) {
                 console.error('Error fetching users:', error)
                 setModalError('Could not load users. Try again.')
@@ -66,17 +66,12 @@ const Modal = ({modalOpen, setModalOpen, projectData, setProjectData}) => {
         setModalError('')
         try {
             // Adjust this endpoint to match your backend, e.g. POST /projects/add-user
-            const res = await axios.put('/projects/add-user', {
+            const { data } = await axios.put('/projects/add-user', {
                 project_id: projectData._id,
                 users: selectedUserIds,
             })
 
-            // Merge newly added users into local project state
-            const newlyAdded = allUsers.filter(u => selectedUserIds.includes(u._id))
-            setProjectData(prev => ({
-                ...prev,
-                users: [...(prev.users || []), ...newlyAdded],
-            }))
+            setProjectData(data.project)
 
             closeModal()
         } catch (error) {

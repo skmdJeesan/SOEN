@@ -1,4 +1,4 @@
-# Real-Time Collaborative Code Editor [![Live Site](https://img.shields.io/badge/Live-Site-black?style=flat-square&logo=render&logoColor=white)](https://soen-frontend-2x42.onrender.com/)
+# SOEN [![Live Site](https://img.shields.io/badge/Live-Site-black?style=flat-square&logo=render&logoColor=white)](https://soen-frontend-2x42.onrender.com/)
 
 A browser-based, real-time collaborative code editor that lets multiple developers write, run, and preview code together in the same project workspace, with an integrated AI assistant that can scaffold and modify project files on request.
 

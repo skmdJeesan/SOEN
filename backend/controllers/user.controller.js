@@ -1,4 +1,4 @@
-import { create_user, get_all_users_by_userid, login_user, resend_user_otp, verify_user_otp } from "../services/user.service.js"
+import { create_user, get_all_users_by_userid, login_user, request_password_reset, resend_password_reset_otp, reset_password, resend_user_otp, verify_user_otp } from "../services/user.service.js"
 import {validationResult} from 'express-validator'
 import redis_client from "../config/redis.js"
 import User from "../models/user.model.js"
@@ -103,6 +103,17 @@ export const get_profile = async (req, res) => {
     }
 }
 
+// export const get_username = async (req, res) => {
+//     try {
+//         const { userId } = req.params
+//         const user = await User.findById(userId)
+//         if (!user) return res.status(404).json({ message: 'User not found' })
+//         return res.status(200).json({ username: user.username })
+//     } catch (error) {
+//         return res.status(500).json({ message: `get username error: ${error}` })
+//     }
+// }
+
 export const get_all_users = async (req, res) => {
     try {
         const {email} = req.user
@@ -113,5 +124,37 @@ export const get_all_users = async (req, res) => {
         return res.status(200).json({users: all_users})
     } catch (error) {
         return res.status(500).json({message: `get all users error: ${error}`})
+    }
+}
+
+export const forgot_password = async (req, res) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() })
+    try {
+        const userId = await request_password_reset(req.body.email)
+        return res.status(200).json({ userId, message: 'OTP sent to your email' })
+    } catch (error) {
+        if (error.code === 'OTP_EMAIL_FAILED') return res.status(503).json({ message: error.message })
+        return res.status(400).json({ message: error.message })
+    }
+}
+
+export const password_reset = async (req, res) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() })
+    try {
+        await reset_password(req.body)
+        return res.status(200).json({ message: 'Password reset successfully' })
+    } catch (error) {
+        return res.status(400).json({ message: error.message })
+    }
+}
+
+export const password_reset_resend = async (req, res) => {
+    try {
+        await resend_password_reset_otp(req.body.userId)
+        return res.status(200).json({ message: 'OTP resent successfully' })
+    } catch (error) {
+        return res.status(400).json({ message: error.message })
     }
 }

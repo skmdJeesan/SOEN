@@ -27,11 +27,20 @@ export const UserContextProvider = ({children}) => {
             }, session_expires_at - Date.now())
         }
 
-        if (saved_user) {
-            axios.get('/users/profile').catch(() => {
-                // The Axios interceptor clears the persisted session on 401.
-            })
+        const fetch_user_data = async () => {
+            if (saved_user) { // refresh user data from backend if a session exists
+                // try {
+                //     const res = await axios.get('/users/profile')
+                //     setUserdata(res.data)
+                // } catch {
+                //     // The Axios interceptor clears the persisted session on 401.
+                // }
+                axios.get('/users/profile').catch(() => {
+                    // The Axios interceptor clears the persisted session on 401.
+                })
+            }
         }
+        fetch_user_data()
 
         return () => {
             window.removeEventListener('auth:expired', handle_session_expired)

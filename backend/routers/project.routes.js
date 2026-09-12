@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import { add_user, delete_filetree_paths, get_all_projects, get_project, project_create, remove_user, update_filetree } from '../controllers/project.controller.js'
+import { add_user, delete_filetree_paths, get_all_projects, get_project, project_create, remove_user, update_filetree, update_project, delete_project } from '../controllers/project.controller.js'
 import {body} from 'express-validator'
 import { auth_user } from '../middleware/auth.middleware.js'
 
@@ -38,5 +38,7 @@ router.put('/delete-filetree',
     body('paths').isArray({ min: 1 }).withMessage('paths must be a non-empty array'),
     delete_filetree_paths
 )
+router.put('/edit', auth_user, update_project)
+router.delete('/:project_id', auth_user, delete_project)
 
 export default router

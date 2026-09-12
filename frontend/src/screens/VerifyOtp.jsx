@@ -39,7 +39,7 @@ const VerifyOtp = () => {
     }
 
     return (
-        <form onSubmit={handleVerify} className="flex flex-col gap-4 max-w-sm mx-auto mt-20">
+        <form onSubmit={handleVerify} className="flex flex-col gap-4 max-w-sm mx-auto mt-20 p-5 sm:p-0">
             <h2 className="text-xl font-semibold">Verify your email</h2>
             <p className="text-sm text-zinc-400">We sent a 6-digit code to your email.</p>
             <input

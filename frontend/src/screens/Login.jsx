@@ -106,9 +106,13 @@ export default function Login() {
                 <label htmlFor="password" className="block text-sm ml-1 font-medium text-[#8B93A7]">
                   Password
                 </label>
-                <Link to="/forgot-password" className="text-xs text-[#5B6376] hover:text-[#8B93A7] transition-colors">
+                <button
+                  type="button"
+                  onClick={() => navigate('/forgot-password', { state: { email: form.email } })}
+                  className="text-xs text-[#5B6376] hover:text-[#8B93A7] transition-colors bg-transparent border-0 p-0 cursor-pointer"
+                >
                   Forgot password?
-                </Link>
+                </button>
               </div>
               <div className="relative">
                 <input

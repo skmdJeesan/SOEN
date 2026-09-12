@@ -73,6 +73,44 @@ export const resend_user_otp = async (userId) => {
     await sendOtpEmail(user.email, otp)
 }
 
+export const request_password_reset = async (email) => {
+    const user = await User.findOne({ email: email.toLowerCase().trim() })
+    if (!user || !user.isVerified) throw new Error('No verified account found with that email')
+
+    const otp = generateOtp()
+    user.otp = await hashOtp(otp)
+    user.otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000)
+    await user.save()
+    await sendOtpEmail(user.email, otp)
+
+    return user._id
+}
+
+export const resend_password_reset_otp = async (userId) => {
+    const user = await User.findOne({ _id: userId, isVerified: true })
+    if (!user) throw new Error('User not found')
+
+    const otp = generateOtp()
+    user.otp = await hashOtp(otp)
+    user.otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000)
+    await user.save()
+    await sendOtpEmail(user.email, otp)
+}
+
+export const reset_password = async ({ userId, otp, password }) => {
+    const user = await User.findById(userId).select('+otp +otpExpiresAt +password')
+    if (!user || !user.isVerified) throw new Error('User not found')
+    if (!user.otp || !user.otpExpiresAt || user.otpExpiresAt < new Date()) {
+        throw new Error('OTP expired. Please request a new one.')
+    }
+    if (!await compareOtp(otp, user.otp)) throw new Error('Invalid OTP')
+
+    user.password = await User.hash_password(password)
+    user.otp = undefined
+    user.otpExpiresAt = undefined
+    await user.save()
+}
+
 export const login_user = async (body) => {
     const { email, password } = body
     const existing_user = await User.findOne({ email }).select('+password')

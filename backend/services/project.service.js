@@ -1,11 +1,11 @@
 import Project from "../models/project.model.js";
 
-export const create_project = async ({ name, user_id }) => {
+export const create_project = async ({ name, description, user_id }) => {
     if (!name) throw new Error('Name is required.')
     if (!user_id) throw new Error('User is required.')
     let project;
     try {
-        project = await Project.create({ name, projectOwner: user_id, users: [user_id] })
+        project = await Project.create({ name, description, projectOwner: user_id, users: [user_id] })
     } catch (error) {
         if (error.code == 11000) {
             throw new Error('Project name already exist!')
@@ -17,7 +17,9 @@ export const create_project = async ({ name, user_id }) => {
 
 export const get_all_projects_by_userid = async ({ user_id }) => {
     if (!user_id) throw new Error('User Id is required')
-    const all_projects = await Project.find({ users: user_id }).populate('users')
+    const all_projects = await Project.find({ users: user_id })
+        .populate('users')
+        .populate('projectOwner', 'username')
     return all_projects
 }
 

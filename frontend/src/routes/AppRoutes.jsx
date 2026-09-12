@@ -7,6 +7,7 @@ import Project from '../screens/Project'
 import { useContext } from 'react'
 import { UserContext } from '../context/user.context'
 import VerifyOtp from '../screens/VerifyOtp'
+import ForgotPassword from '../screens/ForgotPassword'
 
 const AppRoutes = () => {
   const {userdata} = useContext(UserContext)
@@ -18,6 +19,7 @@ const AppRoutes = () => {
         <Route path='/login' element={<Login />} />
         <Route path='/register' element={<Register />} />
         <Route path='/verify-otp' element={<VerifyOtp />} />
+        <Route path='/forgot-password' element={<ForgotPassword />} />
         <Route path='/project' element={isloggedIn ? <Project /> : <Login />} />
       </Routes>
     </BrowserRouter>
