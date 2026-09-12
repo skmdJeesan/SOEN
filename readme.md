@@ -29,7 +29,7 @@ This application combines a live multi-user code editor, an in-browser execution
 
 ## Architecture
 
-![System Architecture Diagram](./frontend/public/soen_architecture.png)
+![System Architecture Diagram](./frontend/public/soen_monolith_architecture_overview.png)
 
 Real-time state flows through Socket.IO in both directions: the server broadcasts file tree and code-change events to all clients in a project room, and each client applies incoming changes to its local WebContainer and editor instance. The database remains the source of truth for a project's file tree and chat history, so newly joining collaborators are brought up to date on connection.
 
