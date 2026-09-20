@@ -4,23 +4,33 @@ import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
 
 const TerminalPanel = forwardRef(
-  ({ webContainer, onFilesystemChange }, ref) => {
+  ({ webContainer, onFilesystemChange, onPreviewStop }, ref) => {
     const containerRef = useRef(null);
     const xtermRef = useRef(null);
     const shellProcessRef = useRef(null);
     const inputWriterRef = useRef(null);
+    const pendingCommandsRef = useRef([]);
     const syncTimerRef = useRef(null);
+    const onFilesystemChangeRef = useRef(onFilesystemChange);
+    const onPreviewStopRef = useRef(onPreviewStop);
+
+    onFilesystemChangeRef.current = onFilesystemChange;
+    onPreviewStopRef.current = onPreviewStop;
 
     useImperativeHandle(ref, () => ({
       runCommand: (command) => {
+        onPreviewStopRef.current?.();
         if (inputWriterRef.current) {
           inputWriterRef.current.write(command + "\n");
+        } else {
+          pendingCommandsRef.current.push(command);
         }
       },
     }));
 
     useEffect(() => {
       if (!webContainer || !containerRef.current) return;
+      let disposed = false;
 
       const xterm = new XTerm({
         convertEol: true,
@@ -38,7 +48,14 @@ const TerminalPanel = forwardRef(
         const shellProcess = await webContainer.spawn("jsh", {
           terminal: { cols: xterm.cols, rows: xterm.rows },
         });
+        if (disposed) {
+          shellProcess.kill();
+          return;
+        }
         shellProcessRef.current = shellProcess;
+        shellProcess.exit.then(() => {
+          if (!disposed) onPreviewStopRef.current?.();
+        });
 
         shellProcess.output.pipeTo(
           new WritableStream({
@@ -50,12 +67,15 @@ const TerminalPanel = forwardRef(
 
         const input = shellProcess.input.getWriter();
         inputWriterRef.current = input;
+        pendingCommandsRef.current.forEach((command) => input.write(command + "\n"));
+        pendingCommandsRef.current = [];
         xterm.onData((data) => {
           input.write(data);
+          if (data.includes("\u0003")) onPreviewStopRef.current?.();
           if (data.includes("\r") || data.includes("\n")) {
             clearTimeout(syncTimerRef.current);
             syncTimerRef.current = setTimeout(
-              () => onFilesystemChange?.(),
+              () => onFilesystemChangeRef.current?.(),
               1000,
             );
           }
@@ -71,16 +91,18 @@ const TerminalPanel = forwardRef(
       window.addEventListener("resize", handleResize);
 
       return () => {
+        disposed = true;
         window.removeEventListener("resize", handleResize);
         clearTimeout(syncTimerRef.current);
         inputWriterRef.current?.releaseLock();
         inputWriterRef.current = null;
         shellProcessRef.current?.kill();
+        shellProcessRef.current = null;
         xterm.dispose();
       };
     }, [webContainer]);
 
-    return <div ref={containerRef} className="h-full w-full" />;
+    return <div ref={containerRef} className="h-screen w-full" />;
   },
 );
 

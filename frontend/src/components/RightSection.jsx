@@ -9,6 +9,7 @@ import TerminalPanel from "./TerminalPanel.jsx";
 import { buildTree } from "../utils/buildTree.js";
 import { writeEntryToContainer } from "../utils/writeToContainer.js";
 import { collectDescendantPaths } from "../utils/collectDescendantPaths.js";
+import { LiaCompressArrowsAltSolid, LiaExpandArrowsAltSolid } from "react-icons/lia";
 
 const lang_map = {
   js: "javascript",
@@ -38,18 +39,19 @@ const RightSection = ({
   terminalRef,
   webContainer,
   onFilesystemChange,
+  onPreviewStop,
   openFiles,
   setOpenFiles,
 }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [bottomTab, setBottomTab] = useState("terminal");
   const [showTerminal, setShowTerminal] = useState(true);
+  const [bottomPanelExpanded, setBottomPanelExpanded] = useState(false);
   const [explorerOpen, setExplorerOpen] = useState(false); // mobile drawer state
   const editorRef = useRef(null);
   const suppressChangesRef = useRef(false); // to prevent infinite loops when applying remote changes to the editor
   const selectedFileRef = useRef(null);
   const fileTreeRef = useRef(fileTree);
-
   const fileNames = Object.keys(fileTree || {}).filter(
     (path) => fileTree[path]?.type === "file",
   );
@@ -271,39 +273,53 @@ const RightSection = ({
   // shared bottom tab bar (Terminal / Preview) — used in both the
   // "file open" and "no file open" render branches below
   const renderBottomPanel = () => (
-    <div className="flex-1 border-t border-white/10 bg-zinc-900/60 flex flex-col min-h-0 scrollbar-hide">
-      <div className="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-1.5 sm:py-2.25 border-b border-white/10 text-[14px]">
+    <div className="flex-1 border-t border-white/10 bg-zinc-900/60 flex flex-col scrollbar-hide">
+      <div className="flex items-center justify-between px-4 sm:px-4 py-1.5 sm:py-2.25 border-b border-white/10 text-[14px]">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <button
+            onClick={() => setBottomTab("terminal")}
+            className={`${bottomTab === "terminal" ? "text-yellow-500" : "text-zinc-400"} hover:text-yellow-500 transition-colors`}
+          >
+            Terminal
+          </button>
+          <button
+            onClick={() => setBottomTab("preview")}
+            className={`${bottomTab === "preview" ? "text-yellow-500" : "text-zinc-400"} hover:text-yellow-500 transition-colors`}
+          >
+            Preview
+          </button>
+        </div>
         <button
-          onClick={() => setBottomTab("terminal")}
-          className={`${bottomTab === "terminal" ? "text-yellow-500" : "text-zinc-400"} hover:text-yellow-500 transition-colors`}
+          type="button"
+          onClick={() => setBottomPanelExpanded((expanded) => !expanded)}
+          aria-label={bottomPanelExpanded ? "Restore editor layout" : "Expand bottom panel"}
+          className="cursor-pointer hover:text-yellow-400 sm:mr-2.5"
         >
-          Terminal
-        </button>
-        <button
-          onClick={() => setBottomTab("preview")}
-          className={`${bottomTab === "preview" ? "text-yellow-500" : "text-zinc-400"} hover:text-yellow-500 transition-colors`}
-        >
-          Preview
+          {!bottomPanelExpanded ? <LiaExpandArrowsAltSolid size={16}/> : <LiaCompressArrowsAltSolid size={16}/>}
         </button>
       </div>
       <div className="flex-1 overflow-hidden">
-        {bottomTab === "terminal" ? (
+        <div className={bottomTab === "terminal" ? "h-full" : "hidden"}>
           <TerminalPanel
             webContainer={webContainer}
             onFilesystemChange={onFilesystemChange}
+            onPreviewStop={onPreviewStop}
             ref={terminalRef}
           />
-        ) : previewUrl ? (
-          <iframe
-            src={previewUrl}
-            className="w-full h-full border-0"
-            title="WebContainer Preview"
-          />
-        ) : (
-          <div className="h-full flex items-center justify-center text-zinc-500 text-xs sm:text-sm text-center px-4">
-            Preview will appear here once the server is ready.
-          </div>
-        )}
+        </div>
+        <div className={bottomTab === "preview" ? "h-full" : "hidden"}>
+          {previewUrl ? (
+            <iframe
+              src={previewUrl}
+              className="w-full h-full border-0 bg-white"
+              title="WebContainer Preview"
+            />
+          ) : (
+            <div className="h-full flex items-center justify-center text-zinc-500 text-xs sm:text-sm text-center px-4">
+              Preview will appear here once the server is ready.
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -433,7 +449,7 @@ const RightSection = ({
                   {isRunning ? <Pause size={14} /> : <Play size={16} />}
                 </button>
                 <button
-                  onClick={() => setShowTerminal((prev) => !prev)}
+                  onClick={() => {setShowTerminal((prev) => !prev); setBottomPanelExpanded(false)}}
                   className="h-7 w-7 rounded-full flex items-center justify-center text-white hover:text-yellow-400 hover:bg-zinc-700 transition-colors cursor-pointer shrink-0"
                 >
                   {showTerminal ? (
@@ -444,9 +460,7 @@ const RightSection = ({
                 </button>
               </div>
             </div>
-            <div
-              className={`${showTerminal ? "h-[55%] sm:h-[50%]" : "h-full"}`}
-            >
+            <div className={bottomPanelExpanded ? "hidden" : showTerminal ? "h-[55%] sm:h-[50%]" : "h-full"}>
               <Editor
                 path={activeFile}
                 height="100%"
@@ -455,19 +469,31 @@ const RightSection = ({
                 onMount={handleEditorMount}
                 theme="vs-dark"
                 options={{
-                  fontSize: 13,
+                  fontSize: 14,
                   minimap: { enabled: false },
                   scrollBeyondLastLine: false,
                   automaticLayout: true,
                 }}
               />
             </div>
-            {showTerminal && renderBottomPanel()}
+            <div
+              className={
+                showTerminal ? "flex-1 min-h-0 flex" : "hidden"
+              }
+            >
+              {renderBottomPanel()}
+            </div>
           </>
         ) : (
           <div className="flex items-center pl-10 md:pl-2 pr-2 h-10 border-b border-white/10 md:hidden" />
         )}
-        {!activeFile && showTerminal && renderBottomPanel()}
+        {!activeFile && (
+          <div
+            className={showTerminal ? "flex-1 min-h-0 flex" : "hidden"}
+          >
+            {renderBottomPanel()}
+          </div>
+        )}
       </div>
     </section>
   );

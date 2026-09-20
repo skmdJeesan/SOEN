@@ -36,6 +36,9 @@ const Project = () => {
   const projectLoadedRef = useRef(false);
   const mountedOnceRef = useRef(false);
   const mountedPathsRef = useRef([]);
+  const previewStartedRef = useRef(false);
+  const webContainerRef = useRef(null);
+  const terminalRef = useRef(null);
 
   const saveFileTree = async (ft) => {
     try {
@@ -106,7 +109,8 @@ const Project = () => {
         const parsed = JSON.parse(data.message);
         if (parsed.fileTree) {
           if (parsed.fileTree) {
-            setFileTree((prev) => { // append new fileTree to existing one, if any
+            setFileTree((prev) => {
+              // append new fileTree to existing one, if any
               const merged = { ...prev, ...parsed.fileTree };
               saveFileTree(merged); // update the database with the new merged fileTree
               return merged;
@@ -127,6 +131,7 @@ const Project = () => {
   // Initialize the project and web container
   useEffect(() => {
     getProjectMessages();
+    
     if (!webContainer) {
       getWebContainer()
         .then(async (container) => {
@@ -147,6 +152,7 @@ const Project = () => {
               err,
             );
           }
+          webContainerRef.current = container;
           setWebContainer(container);
           console.log("web container started");
         })
@@ -154,6 +160,7 @@ const Project = () => {
           console.error("web container failed to start:", error);
         });
     }
+
     const s = initializeSocket(projectData._id);
     receiveMessage("project-message", handleIncomingMessage);
     // or s.on('project-message', handleIncomingMessage)
@@ -169,7 +176,9 @@ const Project = () => {
         if (prev[path]) return prev; // already have it (e.g. it's our own echoed event) — skip
         return { ...prev, [path]: entry };
       });
-      if (webContainer) writeEntryToContainer(webContainer, path, entry);
+      if (webContainerRef.current) {
+        writeEntryToContainer(webContainerRef.current, path, entry);
+      }
     });
     s.on("file-tree:delete", ({ paths }) => {
       setFileTree((prev) => {
@@ -177,9 +186,9 @@ const Project = () => {
         paths.forEach((p) => delete updated[p]);
         return updated;
       });
-      if (webContainer && paths.length > 0) {
+      if (webContainerRef.current && paths.length > 0) {
         // paths[0] is the root of the deletion; rm handles nested content
-        webContainer.fs
+        webContainerRef.current.fs
           .rm(paths[0], { recursive: true, force: true })
           .catch(() => {});
       }
@@ -197,6 +206,24 @@ const Project = () => {
   }, []);
 
   useEffect(() => {
+    if (!containerReady || previewStartedRef.current) return;
+
+    const packageJson = fileTree["package.json"]?.file?.contents;
+    if (!packageJson) return;
+
+    try {
+      const { scripts = {} } = JSON.parse(packageJson);
+      const script = scripts.dev ? "dev" : scripts.start ? "start" : null;
+      if (!script) return;
+
+      previewStartedRef.current = true;
+      terminalRef.current?.runCommand(`npm install && npm run ${script}`);
+    } catch (error) {
+      console.error("Could not read package.json scripts:", error);
+    }
+  }, [containerReady, fileTree]);
+
+  useEffect(() => {
     if (
       !socketReadyRef.current ||
       !projectLoadedRef.current ||
@@ -207,7 +234,7 @@ const Project = () => {
     codeEditorInitializedRef.current = true;
   }, [fileTree]);
 
-  // Sync the web container with the fileTree whenever it changes and 
+  // Sync the web container with the fileTree whenever it changes and
   // This ensures that the container always reflects the latest fileTree state.
   useEffect(() => {
     const webContainerMount = async () => {
@@ -236,8 +263,9 @@ const Project = () => {
           await Promise.all(
             currentTopLevelPaths
               .filter((path) => !nextTopLevelPaths.has(path)) // ["package.json"]
-              .map((path) =>
-                webContainer.fs.rm(path, { recursive: true, force: true }), // removes package.json
+              .map(
+                (path) =>
+                  webContainer.fs.rm(path, { recursive: true, force: true }), // removes package.json
               ),
           );
         }
@@ -252,7 +280,6 @@ const Project = () => {
     webContainerMount();
   }, [webContainer, fileTree, projectLoaded]);
 
-  const terminalRef = useRef(null);
   const syncContainerTree = async () => {
     if (!webContainer) return;
     try {
@@ -268,6 +295,11 @@ const Project = () => {
     if (!terminalRef.current) return;
     setIsRunning(true);
     terminalRef.current.runCommand("npm install && npm run dev");
+  };
+
+  const handlePreviewStop = () => {
+    setPreviewUrl("");
+    setIsRunning(false);
   };
 
   return (
@@ -292,6 +324,7 @@ const Project = () => {
         terminalRef={terminalRef}
         webContainer={containerReady ? webContainer : null}
         onFilesystemChange={syncContainerTree}
+        onPreviewStop={handlePreviewStop}
         openFiles={openFiles}
         setOpenFiles={setOpenFiles}
       />
