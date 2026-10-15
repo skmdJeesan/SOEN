@@ -78,9 +78,7 @@ const Project = () => {
 
   const getProjectMessages = async () => {
     try {
-      const { data: projectRes } = await axios.get(
-        `/projects/get/${projectData._id}`,
-      );
+      const { data: projectRes } = await axios.get(`/projects/get/${projectData._id}`);
       const freshProject = projectRes.project;
       setProjectData(freshProject);
       projectLoadedRef.current = true;
@@ -108,14 +106,12 @@ const Project = () => {
       try {
         const parsed = JSON.parse(data.message);
         if (parsed.fileTree) {
-          if (parsed.fileTree) {
-            setFileTree((prev) => {
-              // append new fileTree to existing one, if any
-              const merged = { ...prev, ...parsed.fileTree };
-              saveFileTree(merged); // update the database with the new merged fileTree
-              return merged;
-            });
-          }
+          setFileTree((prev) => {
+            // append new fileTree to existing one, if any
+            const merged = { ...prev, ...parsed.fileTree };
+            saveFileTree(merged); // update the database with the new merged fileTree
+            return merged;
+          });
         }
       } catch (error) {
         // plain text AI message, no fileTree to extract — safe to ignore
@@ -291,12 +287,6 @@ const Project = () => {
     }
   };
 
-  const runCode = () => {
-    if (!terminalRef.current) return;
-    setIsRunning(true);
-    terminalRef.current.runCommand("npm install && npm run dev");
-  };
-
   const handlePreviewStop = () => {
     setPreviewUrl("");
     setIsRunning(false);
@@ -314,7 +304,6 @@ const Project = () => {
       <RightSection
         fileTree={fileTree}
         setFileTree={setFileTree}
-        // runCode={runCode}
         previewUrl={previewUrl}
         isRunning={isRunning}
         saveFileTree={saveFileTree}

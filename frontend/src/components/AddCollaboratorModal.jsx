@@ -1,5 +1,4 @@
-import { useEffect } from 'react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import axios from '../config/axios.js'
 import { X, Check, Search, User } from 'lucide-react'
 
@@ -19,9 +18,8 @@ const Modal = ({modalOpen, setModalOpen, projectData, setProjectData}) => {
             setLoadingUsers(true)
             setModalError('')
             try {
-                // Adjust this endpoint to match your backend, e.g. GET /users/all
-                    const { data } = await axios.get('/users/all')
-                    setAllUsers(data.users || [])
+                const { data } = await axios.get('/users/all')
+                setAllUsers(data.users || [])
             } catch (error) {
                 console.error('Error fetching users:', error)
                 setModalError('Could not load users. Try again.')
@@ -33,7 +31,7 @@ const Modal = ({modalOpen, setModalOpen, projectData, setProjectData}) => {
         fetchUsers()
     }, [modalOpen])
 
-    const existingCollaboratorIds = (projectData.users || []).map(u => u._id)
+    const existingCollaboratorIds = (projectData?.users || []).map(u => u._id)
 
     const filteredUsers = allUsers
         .filter(u => !existingCollaboratorIds.includes(u._id))
@@ -65,14 +63,11 @@ const Modal = ({modalOpen, setModalOpen, projectData, setProjectData}) => {
         setAdding(true)
         setModalError('')
         try {
-            // Adjust this endpoint to match your backend, e.g. POST /projects/add-user
             const { data } = await axios.put('/projects/add-user', {
                 project_id: projectData._id,
                 users: selectedUserIds,
             })
-
             setProjectData(data.project)
-
             closeModal()
         } catch (error) {
             console.error('Error adding collaborators:', error)
@@ -81,9 +76,10 @@ const Modal = ({modalOpen, setModalOpen, projectData, setProjectData}) => {
             setAdding(false)
         }
     }
+    
     return (
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-            <div className="w-full max-w-md bg-zinc-800 border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="w-full max-w-lg bg-zinc-900 border border-white/10 rounded-3xl shadow-2xl overflow-hidden">
                 <header className="flex items-center justify-between px-5 py-4 border-b border-white/10">
                     <h2 className="font-semibold text-sm uppercase tracking-wide">Add Collaborators</h2>
                     <div onClick={closeModal}
@@ -105,7 +101,7 @@ const Modal = ({modalOpen, setModalOpen, projectData, setProjectData}) => {
                         />
                     </div>
 
-                    <div className="max-h-64 overflow-y-auto flex flex-col gap-2 pr-1">
+                    <div className="scrollbar-hide max-h-64 overflow-y-auto flex flex-col gap-2 pr-1">
                         {loadingUsers && (
                             <p className="text-xs text-zinc-500 text-center py-6">Loading users…</p>
                         )}
